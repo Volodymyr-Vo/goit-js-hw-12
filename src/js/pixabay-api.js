@@ -1,36 +1,24 @@
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
+import axios from 'axios';
 
-export function searchImages(query) {
-  const URL = 'https://pixabay.com/api/';
+axios.defaults.baseURL = 'https://pixabay.com/api/';
+export const limit = 10;
+
+export async function searchImages(query, page) {
   const API_KEY = '48224308-350e5a69bb04eb56206fb25fd';
   const searchParams = new URLSearchParams({
     key: API_KEY,
+    per_page: limit,
+    page,
     q: query,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: 'true',
   });
 
-  return fetch(`${URL}?${searchParams}`).then(response => {
-    if (!response.ok) {
-      throw new Error(response.status);
-    }
-    return response.json();
-  });
+  try {
+    const response = await axios.get(`?${searchParams}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch images');
+  }
 }
-
-let lightbox = new SimpleLightbox('.gallery .gallery-link', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
-
-iziToast.settings({
-  class: 'izi-toast',
-  position: 'topRight',
-  backgroundColor: 'rgba(239, 64, 64, 1)',
-  progressBarColor: 'rgba(181, 27, 27, 1)',
-  theme: 'dark',
-});
